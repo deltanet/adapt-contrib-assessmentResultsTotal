@@ -30,6 +30,7 @@
       {
         "_score": 0,
         "feedback": "Your overall score was below 25%.",
+        "instruction": "",
         "_audio": {
           "src": "course/en/audio/***.mp3"
         }
@@ -37,6 +38,7 @@
       {
         "_score": 25,
         "feedback": "Your overall score was below 50%.",
+        "instruction": "",
         "_audio": {
           "src": "course/en/audio/***.mp3"
         }
@@ -44,6 +46,7 @@
       {
         "_score": 50,
         "feedback": "Good effort, but your overall score was under 75%.",
+        "instruction": "",
         "_audio": {
           "src": "course/en/audio/***.mp3"
         }
@@ -51,6 +54,7 @@
       {
         "_score": 75,
         "feedback": "Great work. You passed your assessments.",
+        "instruction": "",
         "_audio": {
           "src": "course/en/audio/***.mp3"
         }

@@ -177,6 +177,8 @@ define(function(require) {
 
             this.model.set("body", completionBody);
 
+            this.model.set("instruction", state.feedbackBand.instruction);
+
             ///// Audio /////
             if (this.audioIsEnabled) {
                 this.audioFile = state.feedbackBand._audio.src;
