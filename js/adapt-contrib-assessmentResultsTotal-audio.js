@@ -30,6 +30,8 @@ define(function(require) {
           this.elementId = this.model.get("_id");
           this.audioFile = this.model.get("_audioAssessment")._media.src;
 
+          this.onscreenTriggered = false;
+
           // Autoplay
           if(Adapt.audio.autoPlayGlobal || this.model.get("_audioAssessment")._autoplay){
               this.canAutoplay = true;
@@ -50,6 +52,7 @@ define(function(require) {
           if(this.model.get('_audioAssessment')._showControls==false || Adapt.audio.audioClip[this.audioChannel].status==0){
               this.$('.audio-inner button').hide();
           }
+          this.$el.on("onscreen", _.bind(this.onscreen, this));
         },
 
         checkIfVisible: function() {
@@ -112,6 +115,7 @@ define(function(require) {
             this.stopListening(Adapt, 'assessment:complete', this.onAssessmentComplete);
             this.stopListening(Adapt, 'remove', this.onRemove);
             this.$el.off("inview");
+            this.$el.off('onscreen');
         },
 
         onAssessmentComplete: function(state) {
@@ -136,21 +140,33 @@ define(function(require) {
 
                 if (this._isVisibleTop || this._isVisibleBottom) {
                     this.setCompletionStatus();
-
-                    ///// Audio /////
-                    if (this.audioIsEnabled && this.canAutoplay) {
-                        // If audio is turned on
-                        if(Adapt.audio.audioClip[this.model.get('_audioAssessment')._channel].status==1){
-                            Adapt.trigger('audio:playAudio', this.audioFile, this.elementId, this.audioChannel);
-                        }
-                    }
-                    ///// End of Audio /////
-
-                    // Set to false to stop autoplay when inview again
-                    if(this.autoplayOnce) {
-                      this.canAutoplay = false;
-                    }
                 }
+            }
+        },
+
+        onscreen: function(event, measurements) {
+            var visible = this.model.get('_isVisible');
+            var isOnscreenY = measurements.percentFromTop < Adapt.audio.triggerPosition && measurements.percentFromTop > 0;
+            var isOnscreenX = measurements.percentInviewHorizontal == 100;
+            var isOnscreen = measurements.onscreen;
+
+            // Check for element coming on screen
+            if (visible && isOnscreenY && isOnscreenX && this.canAutoplay && this.onscreenTriggered == false) {
+              // Check if audio is set to on
+              if (Adapt.audio.audioClip[this.audioChannel].status == 1) {
+                Adapt.trigger('audio:playAudio', this.audioFile, this.elementId, this.audioChannel);
+              }
+              // Set to false to stop autoplay when onscreen again
+              if (this.autoplayOnce) {
+                this.canAutoplay = false;
+              }
+              // Set to true to stop onscreen looping
+              this.onscreenTriggered = true;
+            }
+            // Check when element is off screen
+            if (visible && isOnscreen == false) {
+              this.onscreenTriggered = false;
+              Adapt.trigger('audio:onscreenOff', this.elementId, this.audioChannel);
             }
         },
 
