@@ -1,7 +1,7 @@
-define(function(require) {
-
-    var ComponentView = require('coreViews/componentView');
-    var Adapt = require('coreJS/adapt');
+define([
+    'core/js/adapt',
+    'core/js/views/componentView'
+], function(Adapt, ComponentView) {
 
     var AssessmentResultsTotalAudio = ComponentView.extend({
 
