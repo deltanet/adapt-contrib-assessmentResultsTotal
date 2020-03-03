@@ -6,15 +6,13 @@ define([
     var AssessmentResultsTotalAudio = ComponentView.extend({
 
         events: {
-            'inview': 'onInview',
             'click .audio-toggle': 'toggleAudio'
         },
 
         preRender: function () {
-
             this.audioIsEnabled = false;
 
-            if(Adapt.course.get('_audio') && Adapt.course.get('_audio')._isEnabled && this.model.has('_audioAssessment') && this.model.get('_audioAssessment')._isEnabled) {
+            if (Adapt.course.get('_audio') && Adapt.course.get('_audio')._isEnabled && this.model.has('_audioAssessment') && this.model.get('_audioAssessment')._isEnabled) {
               this.setupAudio();
               this.audioIsEnabled = true;
             }
@@ -56,7 +54,6 @@ define([
         },
 
         checkIfVisible: function() {
-
             var wasVisible = this.model.get("_isVisible");
             var isVisibleBeforeCompletion = this.model.get("_isVisibleBeforeCompletion") || false;
 
@@ -105,6 +102,7 @@ define([
 
         postRender: function() {
             this.setReadyStatus();
+            this.setupInviewCompletion('.component-inner', this.checkCompletion.bind(this));
         },
         setupEventListeners: function() {
             this.listenTo(Adapt, 'assessment:complete', this.onAssessmentComplete);
@@ -114,12 +112,15 @@ define([
         removeEventListeners: function() {;
             this.stopListening(Adapt, 'assessment:complete', this.onAssessmentComplete);
             this.stopListening(Adapt, 'remove', this.onRemove);
-            this.$el.off("inview");
             this.$el.off('onscreen');
         },
 
         onAssessmentComplete: function(state) {
-            this.model.set("_state", state);
+            this.model.set( {
+                _state: state,
+                isPass: state.isPass
+            });
+
             this.setFeedback();
 
             //show feedback component
@@ -127,21 +128,12 @@ define([
             this.setFeedback();
         },
 
-        onInview: function(event, visible, visiblePartX, visiblePartY) {
-            if (visible) {
-                if (visiblePartY === 'top') {
-                    this._isVisibleTop = true;
-                } else if (visiblePartY === 'bottom') {
-                    this._isVisibleBottom = true;
-                } else {
-                    this._isVisibleTop = true;
-                    this._isVisibleBottom = true;
-                }
-
-                if (this._isVisibleTop || this._isVisibleBottom) {
-                    this.setCompletionStatus();
-                }
+        checkCompletion: function() {
+            if (this.model.get('_setCompletionOn') === 'pass' && !this.model.get('isPass')) {
+                return;
             }
+
+            this.setCompletionStatus();
         },
 
         onscreen: function(event, measurements) {
@@ -181,7 +173,6 @@ define([
         },
 
         setFeedback: function() {
-
             var completionBody = this.model.get("_completionBody");
             var feedbackBand = this.getFeedbackBand();
 
@@ -200,7 +191,6 @@ define([
                 this.audioFile = state.feedbackBand._audio.src;
             }
             ///// End of Audio /////
-
         },
 
         getFeedbackBand: function() {

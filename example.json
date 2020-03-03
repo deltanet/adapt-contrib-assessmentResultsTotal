@@ -11,9 +11,7 @@
     "body":"This component you're reading is a total results component.",
     "instruction":"",
     "_isVisibleBeforeCompletion": true,
-    "_pageLevelProgress": {
-      "_isEnabled": true
-    },
+    "_setCompletionOn": "inview",
     "_completionBody": "This component you're reading is a total results component.<br>You have finished the assessments.<br>You scored {{{scoreAsPercent}}}%. {{{feedback}}}",
     "_audioAssessment": {
       "_isEnabled": true,
