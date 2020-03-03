@@ -121,11 +121,13 @@ define([
                 isPass: state.isPass
             });
 
-            this.setFeedback();
+            this.setFeedbackBand(state);
 
             //show feedback component
             this.render();
-            this.setFeedback();
+            this.setFeedbackBand(state);
+
+            this.setFeedbackText();
         },
 
         checkCompletion: function() {
@@ -172,76 +174,34 @@ define([
             }
         },
 
-        setFeedback: function() {
-            var completionBody = this.model.get("_completionBody");
-            var feedbackBand = this.getFeedbackBand();
-
-            var state = this.model.get("_state");
-            state.feedbackBand = feedbackBand;
-            state.feedback = feedbackBand.feedback;
-
-            completionBody = this.stringReplace(completionBody, state);
-
-            this.model.set("body", completionBody);
-
-            this.model.set("instruction", state.feedbackBand.instruction);
-
-            ///// Audio /////
-            if (this.audioIsEnabled) {
-                this.audioFile = state.feedbackBand._audio.src;
-            }
-            ///// End of Audio /////
-        },
-
-        getFeedbackBand: function() {
-            var state = this.model.get("_state");
-
-            var bands = this.model.get("_bands");
-            var scoreAsPercent = state.scoreAsPercent;
+        setFeedbackBand: function(state) {
+            var scoreProp = state.isPercentageBased ? 'scoreAsPercent' : 'score';
+            var bands = _.sortBy(this.model.get('_bands'), '_score');
 
             for (var i = (bands.length - 1); i >= 0; i--) {
-                if (scoreAsPercent >= bands[i]._score) {
-                    return bands[i];
-                }
-            }
+                var isScoreInBandRange =  (state[scoreProp] >= bands[i]._score);
+                if (!isScoreInBandRange) continue;
 
-            return "";
+                this.model.set('_feedbackBand', bands[i]);
+                break;
+            }
         },
 
-        stringReplace: function(string, context) {
-            //use handlebars style escaping for string replacement
-            //only supports unescaped {{{ attributeName }}} and html escaped {{ attributeName }}
-            //will string replace recursively until no changes have occured
+        setFeedbackText: function() {
+            var feedbackBand = this.model.get('_feedbackBand');
 
-            var changed = true;
-            while (changed) {
-                changed = false;
-                for (var k in context) {
-                    var contextValue = context[k];
+            // ensure any handlebars expressions in the .feedback are handled...
+            var feedback = feedbackBand ? Handlebars.compile(feedbackBand.feedback)(this.model.toJSON()) : '';
 
-                    switch (typeof contextValue) {
-                    case "object":
-                        continue;
-                    case "number":
-                        contextValue = Math.floor(contextValue);
-                        break;
-                    }
+            this.model.set({
+                feedback: feedback,
+                body: this.model.get('_completionBody'),
+                instruction: feedbackBand.instruction
+            });
 
-                    var regExNoEscaping = new RegExp("((\\{\\{\\{){1}[\\ ]*"+k+"[\\ ]*(\\}\\}\\}){1})","g");
-                    var regExEscaped = new RegExp("((\\{\\{){1}[\\ ]*"+k+"[\\ ]*(\\}\\}){1})","g");
-
-                    var preString = string;
-
-                    string = string.replace(regExNoEscaping, contextValue);
-                    var escapedText = $("<p>").text(contextValue).html();
-                    string = string.replace(regExEscaped, escapedText);
-
-                    if (string != preString) changed = true;
-
-                }
+            if (this.audioIsEnabled) {
+                this.audioFile = feedbackBand._audio.src;
             }
-
-            return string;
         },
 
         onRemove: function() {
