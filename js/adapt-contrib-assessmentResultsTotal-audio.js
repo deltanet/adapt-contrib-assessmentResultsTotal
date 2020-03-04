@@ -6,13 +6,15 @@ define([
     var AssessmentResultsTotalAudio = ComponentView.extend({
 
         events: {
+            'inview': 'onInview',
             'click .audio-toggle': 'toggleAudio'
         },
 
         preRender: function () {
+
             this.audioIsEnabled = false;
 
-            if (Adapt.course.get('_audio') && Adapt.course.get('_audio')._isEnabled && this.model.has('_audioAssessment') && this.model.get('_audioAssessment')._isEnabled) {
+            if(Adapt.course.get('_audio') && Adapt.course.get('_audio')._isEnabled && this.model.has('_audioAssessment') && this.model.get('_audioAssessment')._isEnabled) {
               this.setupAudio();
               this.audioIsEnabled = true;
             }
@@ -54,6 +56,7 @@ define([
         },
 
         checkIfVisible: function() {
+
             var wasVisible = this.model.get("_isVisible");
             var isVisibleBeforeCompletion = this.model.get("_isVisibleBeforeCompletion") || false;
 
@@ -102,7 +105,6 @@ define([
 
         postRender: function() {
             this.setReadyStatus();
-            this.setupInviewCompletion('.component-inner', this.checkCompletion.bind(this));
         },
         setupEventListeners: function() {
             this.listenTo(Adapt, 'assessment:complete', this.onAssessmentComplete);
@@ -112,30 +114,36 @@ define([
         removeEventListeners: function() {;
             this.stopListening(Adapt, 'assessment:complete', this.onAssessmentComplete);
             this.stopListening(Adapt, 'remove', this.onRemove);
+            this.$el.off("inview");
             this.$el.off('onscreen');
         },
 
         onAssessmentComplete: function(state) {
-            this.model.set( {
-                _state: state,
-                isPass: state.isPass
-            });
+            this.model.set("_state", state);
+            this.model.set("isPass", state.isPass);
 
-            this.setFeedbackBand(state);
+            this.setFeedback();
 
             //show feedback component
             this.render();
-            this.setFeedbackBand(state);
-
-            this.setFeedbackText();
+            this.setFeedback();
         },
 
-        checkCompletion: function() {
-            if (this.model.get('_setCompletionOn') === 'pass' && !this.model.get('isPass')) {
-                return;
-            }
+        onInview: function(event, visible, visiblePartX, visiblePartY) {
+            if (visible) {
+                if (visiblePartY === 'top') {
+                    this._isVisibleTop = true;
+                } else if (visiblePartY === 'bottom') {
+                    this._isVisibleBottom = true;
+                } else {
+                    this._isVisibleTop = true;
+                    this._isVisibleBottom = true;
+                }
 
-            this.setCompletionStatus();
+                if (this._isVisibleTop || this._isVisibleBottom) {
+                    this.checkCompletion();
+                }
+            }
         },
 
         onscreen: function(event, measurements) {
@@ -174,7 +182,28 @@ define([
             }
         },
 
-        setFeedbackBand: function(state) {
+        setFeedback: function() {
+            var state = this.model.get("_state");
+            var completionBody = this.model.get("_completionBody");
+            var feedbackBand = this.getFeedbackBand(state);
+
+            state.feedbackBand = feedbackBand;
+            state.feedback = feedbackBand.feedback;
+
+            completionBody = this.stringReplace(completionBody, state);
+
+            this.model.set("body", completionBody);
+
+            this.model.set("instruction", state.feedbackBand.instruction);
+
+            ///// Audio /////
+            if (this.audioIsEnabled) {
+                this.audioFile = state.feedbackBand._audio.src;
+            }
+            ///// End of Audio /////
+        },
+
+        getFeedbackBand: function(state) {
             var scoreProp = state.isPercentageBased ? 'scoreAsPercent' : 'score';
             var bands = _.sortBy(this.model.get('_bands'), '_score');
 
@@ -182,26 +211,52 @@ define([
                 var isScoreInBandRange =  (state[scoreProp] >= bands[i]._score);
                 if (!isScoreInBandRange) continue;
 
-                this.model.set('_feedbackBand', bands[i]);
-                break;
+                return bands[i];
             }
         },
 
-        setFeedbackText: function() {
-            var feedbackBand = this.model.get('_feedbackBand');
-
-            // ensure any handlebars expressions in the .feedback are handled...
-            var feedback = feedbackBand ? Handlebars.compile(feedbackBand.feedback)(this.model.toJSON()) : '';
-
-            this.model.set({
-                feedback: feedback,
-                body: this.model.get('_completionBody'),
-                instruction: feedbackBand.instruction
-            });
-
-            if (this.audioIsEnabled) {
-                this.audioFile = feedbackBand._audio.src;
+        checkCompletion: function() {
+            if (this.model.get('_setCompletionOn') === 'pass' && !this.model.get('isPass')) {
+                return;
             }
+
+            this.setCompletionStatus();
+        },
+
+        stringReplace: function(string, context) {
+            //use handlebars style escaping for string replacement
+            //only supports unescaped {{{ attributeName }}} and html escaped {{ attributeName }}
+            //will string replace recursively until no changes have occured
+
+            var changed = true;
+            while (changed) {
+                changed = false;
+                for (var k in context) {
+                    var contextValue = context[k];
+
+                    switch (typeof contextValue) {
+                    case "object":
+                        continue;
+                    case "number":
+                        contextValue = Math.floor(contextValue);
+                        break;
+                    }
+
+                    var regExNoEscaping = new RegExp("((\\{\\{\\{){1}[\\ ]*"+k+"[\\ ]*(\\}\\}\\}){1})","g");
+                    var regExEscaped = new RegExp("((\\{\\{){1}[\\ ]*"+k+"[\\ ]*(\\}\\}){1})","g");
+
+                    var preString = string;
+
+                    string = string.replace(regExNoEscaping, contextValue);
+                    var escapedText = $("<p>").text(contextValue).html();
+                    string = string.replace(regExEscaped, escapedText);
+
+                    if (string != preString) changed = true;
+
+                }
+            }
+
+            return string;
         },
 
         onRemove: function() {
