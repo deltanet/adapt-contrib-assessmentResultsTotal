@@ -109,7 +109,7 @@ define([
             }
 
             if (!isComplete) {
-                this.model.reset("hard", true);
+                this.reset("hard", true);
             }
 
             var isVisible = isVisibleBeforeCompletion && !isComplete;
