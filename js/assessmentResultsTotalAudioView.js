@@ -3,13 +3,15 @@ define([
     'core/js/views/componentView'
 ], function(Adapt, ComponentView) {
 
-    var AssessmentResultsTotalAudioView = ComponentView.extend({
+    class AssessmentResultsTotalAudioView extends ComponentView {
 
-        events: {
+        events() {
+          return {
             'click .audio-toggle': 'toggleAudio'
-        },
+          }
+        }
 
-        preRender: function () {
+        preRender() {
             this.model.setLocking('_isVisible', false);
 
             this.listenTo(Adapt, 'preRemove', function () {
@@ -22,9 +24,9 @@ define([
             });
 
             this.model.checkIfAssessmentComplete();
-        },
+        }
 
-        postRender: function() {
+        postRender() {
             this.setReadyStatus();
             this.setupInviewCompletion('.component-inner', this.model.checkCompletion.bind(this.model));
 
@@ -34,13 +36,13 @@ define([
               this.$el.on("onscreen", _.bind(this.onscreen, this));
               this.listenTo(Adapt, 'remove', this.removeListeners);
             }
-        },
+        }
 
-        removeListeners: function() {
+        removeListeners() {
             this.$el.off('onscreen');
-        },
+        }
 
-        setupAudio: function() {
+        setupAudio() {
           // Set vars
           this.audioChannel = this.model.get("_audioAssessment")._channel;
           this.elementId = this.model.get("_id");
@@ -71,9 +73,9 @@ define([
           if (this.model.get('_audioAssessment')._showControls==false || Adapt.audio.audioClip[this.audioChannel].status==0){
               this.$('.audio-inner button').hide();
           }
-        },
+        }
 
-        onscreen: function(event, measurements) {
+        onscreen(event, measurements) {
             var visible = this.model.get('_isVisible');
             var isOnscreenY = measurements.percentFromTop < Adapt.audio.triggerPosition && measurements.percentFromTop > 0;
             var isOnscreenX = measurements.percentInviewHorizontal == 100;
@@ -97,9 +99,9 @@ define([
               this.onscreenTriggered = false;
               Adapt.trigger('audio:onscreenOff', this.elementId, this.audioChannel);
             }
-        },
+        }
 
-        toggleAudio: function(event) {
+        toggleAudio(event) {
             if (event) event.preventDefault();
             Adapt.audio.audioClip[this.audioChannel].onscreenID = "";
             if ($(event.currentTarget).hasClass('playing')) {
@@ -107,21 +109,21 @@ define([
             } else {
                 Adapt.trigger('audio:playAudio', this.model.get('audioFile'), this.elementId, this.audioChannel);
             }
-        },
+        }
 
         /**
          * If there are classes specified for the feedback band, apply them to the containing article
          * This allows for custom styling based on the band the user's score falls into
          */
-        addClassesToArticle: function(model, value) {
+        addClassesToArticle(model, value) {
             if (!value || !value._classes) return;
 
             this.$el.parents('.article').addClass(value._classes);
         }
 
-    }, {
-        template: 'assessmentResultsTotalAudio'
-    });
+    }
+
+    AssessmentResultsTotalAudioView.template = 'assessmentResultsTotalAudio'
 
     return AssessmentResultsTotalAudioView;
 });

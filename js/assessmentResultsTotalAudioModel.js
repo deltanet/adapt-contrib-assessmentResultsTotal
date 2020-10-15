@@ -3,9 +3,9 @@ define([
     'core/js/models/componentModel'
 ], function(Adapt, ComponentModel) {
 
-    var AssessmentResultsTotalAudioModel = ComponentModel.extend({
+    class AssessmentResultsTotalAudioModel extends ComponentModel {
 
-        init: function() {
+        init(...args) {
             this.set('originalBody', this.get('body'));// save the original body text so we can restore it when the assessment is reset
             this.set('originalInstruction', this.get('instruction'));// save the original body text so we can restore it when the assessment is reset
 
@@ -17,12 +17,14 @@ define([
                 'assessment:complete': this.onAssessmentComplete,
                 'assessments:reset': this.onAssessmentReset
             });
-        },
+
+            super.init(...args);
+        }
 
         /**
          * Checks to see if the assessment was completed in a previous session or not
          */
-        checkIfAssessmentComplete: function() {
+        checkIfAssessmentComplete() {
             if (!Adapt.assessment || this.get('_assessmentId') === undefined) {
                 return;
             }
@@ -37,9 +39,9 @@ define([
             }
 
             this.setVisibility();
-        },
+        }
 
-        onAssessmentComplete: function(state) {
+        onAssessmentComplete(state) {
             /*
             make shortcuts to some of the key properties in the state object so that
             content developers can just use {{attemptsLeft}} in json instead of {{state.attemptsLeft}}
@@ -60,9 +62,9 @@ define([
             this.setFeedbackText();
 
             this.toggleVisibility(true);
-        },
+        }
 
-        setFeedbackBand: function(state) {
+        setFeedbackBand(state) {
             var scoreProp = state.isPercentageBased ? 'scoreAsPercent' : 'score';
             var bands = _.sortBy(this.get('_bands'), '_score');
 
@@ -73,9 +75,9 @@ define([
                 this.set('_feedbackBand', bands[i]);
                 break;
             }
-        },
+        }
 
-        setFeedbackText: function() {
+        setFeedbackText() {
             var feedbackBand = this.get('_feedbackBand');
 
             // ensure any handlebars expressions in the .feedback are handled...
@@ -90,9 +92,9 @@ define([
             if (Adapt.audio && this.get('_audioAssessment')._isEnabled) {
               this.set('audioFile', feedbackBand._audio.src);
             }
-        },
+        }
 
-        setVisibility: function() {
+        setVisibility() {
             if (!Adapt.assessment) return;
 
             var isVisibleBeforeCompletion = this.get('_isVisibleBeforeCompletion') || false;
@@ -117,37 +119,37 @@ define([
             if (!wasVisible && isVisible) isVisible = false;
 
             this.toggleVisibility(isVisible);
-        },
+        }
 
-        toggleVisibility: function (isVisible) {
+        toggleVisibility(isVisible) {
             if (isVisible === undefined) {
                 isVisible = !this.get('_isVisible');
             }
 
             this.set('_isVisible', isVisible, {pluginName: 'assessmentResultsTotalAudio'});
-        },
+        }
 
-        checkCompletion: function() {
+        checkCompletion() {
             if (this.get('_setCompletionOn') === 'pass' && !this.get('isPass')) {
                 return;
             }
 
             this.setCompletionStatus();
-        },
+        }
 
         /**
          * Handles resetting the component whenever its corresponding assessment is reset
          * The component can either inherit the assessment's reset type or define its own
          */
-        onAssessmentReset: function(state) {
+        onAssessmentReset(state) {
             var resetType = this.get('_resetType');
             if (!resetType || resetType === 'inherit') {
                 resetType = state.resetType || 'hard';// backwards compatibility - state.resetType was only added in assessment v2.3.0
             }
             this.reset(resetType, true);
-        },
+        }
 
-        reset: function() {
+        reset(...args) {
             this.set({
                 body: this.get('originalBody'),
                 instruction: this.get('originalInstruction'),
@@ -156,9 +158,9 @@ define([
                 _feedbackBand: null
             });
 
-            ComponentModel.prototype.reset.apply(this, arguments);
+            super.reset(...args);
         }
-    });
+    }
 
     return AssessmentResultsTotalAudioModel;
 

@@ -60,9 +60,9 @@ For a guide on the difference between using two curly braces and three curly bra
 No known limitations.  
 
 ----------------------------
-**Version number:**  2.3.1  
-**Framework versions:** 2+  
+**Version number:**  3.0.0  
+**Framework versions:** 5+  
 **Author / maintainer:** DeltaNet, forked from [adapt-contrib-assessmentResultsTotal](https://github.com/adaptlearning/adapt-contrib-assessmentResultsTotal)    
 **Accessibility support:** WAI AA   
 **RTL support:** yes  
-**Cross-platform coverage:** Chrome, Chrome for Android, Firefox (ESR + latest version), Edge, IE11, IE Mobile 11, Safari 11+12 for macOS+iOS, Opera
+**Cross-platform coverage:** Chrome, Chrome for Android, Firefox (ESR + latest version), Edge, IE11, Safari 13+14 for macOS+iOS
