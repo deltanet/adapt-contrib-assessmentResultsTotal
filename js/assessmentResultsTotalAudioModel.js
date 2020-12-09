@@ -25,18 +25,9 @@ define([
          * Checks to see if the assessment was completed in a previous session or not
          */
         checkIfAssessmentComplete() {
-            if (!Adapt.assessment || this.get('_assessmentId') === undefined) {
-                return;
-            }
 
-            var assessmentModel = Adapt.assessment.get(this.get('_assessmentId'));
-            if (!assessmentModel || assessmentModel.length === 0) return;
-
-            var state = assessmentModel.getState();
-            if (state.isComplete) {
-                this.onAssessmentComplete(state);
-                return;
-            }
+            var  isComplete = this.isComplete();
+            if (isComplete) this.onAssessmentComplete(Adapt.assessment.getState());
 
             this.setVisibility();
         }
@@ -94,11 +85,8 @@ define([
             }
         }
 
-        setVisibility() {
-            if (!Adapt.assessment) return;
-
-            var isVisibleBeforeCompletion = this.get('_isVisibleBeforeCompletion') || false;
-            var wasVisible = this.get('_isVisible');
+        isComplete() {
+            var isComplete = false;
 
             var assessmentArticleModels = Adapt.assessment.get();
             if (assessmentArticleModels.length === 0) return;
@@ -106,13 +94,24 @@ define([
             for (var i = 0, l = assessmentArticleModels.length; i < l; i++) {
                 var articleModel = assessmentArticleModels[i];
                 var assessmentState = articleModel.getState();
-                var isComplete = assessmentState.isComplete;
+                isComplete = assessmentState.isComplete;
                 if (!isComplete) break;
             }
 
             if (!isComplete) {
                 this.reset("hard", true);
             }
+
+            return isComplete;
+        }
+
+        setVisibility() {
+            if (!Adapt.assessment) return;
+
+            var isVisibleBeforeCompletion = this.get('_isVisibleBeforeCompletion') || false;
+            var wasVisible = this.get('_isVisible');
+
+            var  isComplete = this.isComplete();
 
             var isVisible = isVisibleBeforeCompletion && !isComplete;
 
