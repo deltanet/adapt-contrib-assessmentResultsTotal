@@ -22,6 +22,7 @@ define([
             });
 
             this.model.checkIfAssessmentComplete();
+            this.model.checkIfAssessmentsComplete();
         },
 
         postRender: function() {
