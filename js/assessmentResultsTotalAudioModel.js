@@ -32,7 +32,7 @@ define([
         checkIfAssessmentComplete: function() {
             if (!Adapt.assessment) return;
 
-            if (this.get('_assessmentId') & this.get('_assessmentId').length > 0) return;
+            if (this.get('_assessmentId') && this.get('_assessmentId').length > 0) return;
 
             var assessmentArticleModels = Adapt.assessment.get();
             if (assessmentArticleModels.length === 0) return;
