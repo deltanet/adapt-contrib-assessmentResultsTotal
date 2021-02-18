@@ -13,26 +13,68 @@ define([
               this.set('audioFile', this.get('_audioAssessment')._media.src);
             }
 
-            this.listenTo(Adapt, {
-                'assessment:complete': this.onAssessmentComplete,
-                'assessments:reset': this.onAssessmentReset
-            });
+            if (!this.get('_assessmentId') || this.get('_assessmentId').length == 0) {
+              this.listenTo(Adapt, {
+                  'assessment:complete': this.onAssessmentComplete,
+                  'assessments:reset': this.onAssessmentReset
+              });
+            } else {
+              this.listenTo(Adapt, {
+                  'assessments:complete': this.onAssessmentsComplete,
+                  'assessments:reset': this.onAssessmentReset
+              });
+            }
         },
 
         /**
          * Checks to see if the assessment was completed in a previous session or not
          */
         checkIfAssessmentComplete: function() {
-            if (!Adapt.assessment || this.get('_assessmentId') === undefined) {
+            if (!Adapt.assessment) return;
+
+            if (this.get('_assessmentId') && this.get('_assessmentId').length > 0) return;
+
+            var assessmentArticleModels = Adapt.assessment.get();
+            if (assessmentArticleModels.length === 0) return;
+
+            for (var i = 0, l = assessmentArticleModels.length; i < l; i++) {
+                var articleModel = assessmentArticleModels[i];
+                var assessmentState = articleModel.getState();
+                var isComplete = assessmentState.isComplete;
+                if (!isComplete) break;
+            }
+
+            if (isComplete) {
+                this.onAssessmentComplete(Adapt.assessment.getState());
                 return;
             }
 
-            var assessmentModel = Adapt.assessment.get(this.get('_assessmentId'));
-            if (!assessmentModel || assessmentModel.length === 0) return;
+            this.setVisibility();
+        },
 
-            var state = assessmentModel.getState();
-            if (state.isComplete) {
-                this.onAssessmentComplete(state);
+        checkIfAssessmentsComplete: function() {
+            if (!Adapt.assessment) return;
+
+            if (!this.get('_assessmentId') || this.get('_assessmentId').length == 0) return;
+
+            var assessmentIDs = this.get('_assessmentId');
+            var assessmentArticleModels = [];
+            var assessmentStates = [];
+
+            for (var i = 0, l = assessmentIDs.length; i < l; i++) {
+              assessmentArticleModels.push(Adapt.assessment.get(assessmentIDs[i]));
+            }
+
+            for (var i = 0, l = assessmentArticleModels.length; i < l; i++) {
+                var articleModel = assessmentArticleModels[i];
+                var assessmentState = articleModel.getState();
+                assessmentStates.push(assessmentState);
+                var isComplete = assessmentState.isComplete;
+                if (!isComplete) break;
+            }
+
+            if (isComplete) {
+                this.onAssessmentComplete(this.getAssessmentStates(assessmentStates));
                 return;
             }
 
@@ -60,6 +102,55 @@ define([
             this.setFeedbackText();
 
             this.toggleVisibility(true);
+        },
+
+        onAssessmentsComplete: function(state) {
+            var assessmentIDs = this.get('_assessmentId');
+            var assessmentArticleModels = [];
+            var assessmentStates = [];
+
+            for (var i = 0, l = assessmentIDs.length; i < l; i++) {
+              assessmentArticleModels.push(Adapt.assessment.get(assessmentIDs[i]));
+            }
+
+            for (var i = 0, l = assessmentArticleModels.length; i < l; i++) {
+                var articleModel = assessmentArticleModels[i];
+                var assessmentState = articleModel.getState();
+                assessmentStates.push(assessmentState);
+                var isComplete = assessmentState.isComplete;
+                if (!isComplete) break;
+            }
+
+            if (isComplete) {
+                this.onAssessmentComplete(this.getAssessmentStates(assessmentStates));
+                return;
+            }
+
+            this.setVisibility();
+        },
+
+        getAssessmentStates: function(states) {
+            var score = 0;
+            var maxScore = 0;
+            var totalAssessments = 0;
+            var isPercentageBased = Adapt.course.get('_assessment')._isPercentageBased;
+
+            for (var id in states) {
+                var state = states[id];
+                if (!state.includeInTotalScore) continue;
+                totalAssessments++;
+                maxScore += state.maxScore / state.assessmentWeight;
+                score += state.score / state.assessmentWeight;
+            }
+
+            var scoreAsPercent = Math.round((score / maxScore) * 100);
+
+            return {
+                isPercentageBased: isPercentageBased,
+                scoreAsPercent: scoreAsPercent,
+                maxScore: maxScore,
+                score: score
+            };
         },
 
         setFeedbackBand: function(state) {
