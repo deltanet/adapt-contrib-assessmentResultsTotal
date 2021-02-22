@@ -105,7 +105,10 @@ define([
         },
 
         onAssessmentsComplete: function(state) {
-            var assessmentIDs = this.get('_assessmentId');
+          var assessmentIDs = this.get('_assessmentId');
+
+          if (!assessmentIDs.includes(state.id)) return;
+
             var assessmentArticleModels = [];
             var assessmentStates = [];
 
@@ -122,7 +125,12 @@ define([
             }
 
             if (isComplete) {
+              if (assessmentIDs.length == 1) {
+                this.onAssessmentComplete(state);
+              } else {
                 this.onAssessmentComplete(this.getAssessmentStates(assessmentStates));
+              }
+
                 return;
             }
 
