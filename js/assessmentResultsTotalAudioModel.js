@@ -107,7 +107,7 @@ define([
         onAssessmentsComplete: function(state) {
           var assessmentIDs = this.get('_assessmentId');
 
-          if (!assessmentIDs.includes(state.id)) return;
+          if (assessmentIDs.indexOf(state.id) > -1 ) {
 
             var assessmentArticleModels = [];
             var assessmentStates = [];
@@ -135,6 +135,7 @@ define([
             }
 
             this.setVisibility();
+          }
         },
 
         getAssessmentStates: function(states) {
