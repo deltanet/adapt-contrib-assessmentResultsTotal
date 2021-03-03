@@ -4,9 +4,9 @@
   "framework": ">=5",
   "homepage": "https://github.com/deltanet/adapt-contrib-assessmentResultsTotal-audio",
   "issues": "https://github.com/deltanet/adapt-contrib-assessmentResultsTotal-audio/issues",
-  "displayName" : "Assessment Results Total Audio",
+  "displayName" : "Multiple Assessment Results",
   "component" : "assessmentResultsTotalAudio",
-  "description": "A component used to display the total assessment results",
+  "description": "A component used to display the results for specific or all assessments",
   "main": "/js/adapt-contrib-assessmentResultsTotal-audio.js",
   "keywords": [
     "adapt-plugin",

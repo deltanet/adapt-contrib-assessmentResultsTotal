@@ -1,6 +1,6 @@
 # adapt-contrib-assessmentResultsTotal-audio  
 
-**Assessment Results Total Audio** is an audio enabled *presentation component*.  
+**Multiple Assessment Results** is an audio enabled *presentation component*.  
 
 <img src="https://github.com/adaptlearning/documentation/blob/master/04_wiki_assets/plug-ins/images/assessmentResults01.png" alt="sample assessment results component">
 
@@ -12,9 +12,9 @@ This custom component must be installed manually.
 
 ## Settings Overview
 
-**Important note: do not put the Assessment Results Total Audio component in the same article as the assessment itself**.
+**Important note: do not put the Multiple Assessment Results component in the same article as the assessment itself**.
 
-The attributes listed below are used in *components.json* to configure **Assessment Results Total Audio**, and are properly formatted as JSON in [*example.json*](https://github.com/deltanet/adapt-contrib-assessmentResultsTotal-audio/blob/master/example.json). Visit the [**Assessment Results Total Audio** wiki](https://github.com/deltanet/adapt-contrib-assessmentResultsTotal-audio/wiki) for more information about how they appear in the [authoring tool](https://github.com/adaptlearning/adapt_authoring/wiki).
+The attributes listed below are used in *components.json* to configure **Multiple Assessment Results**, and are properly formatted as JSON in [*example.json*](https://github.com/deltanet/adapt-contrib-assessmentResultsTotal-audio/blob/master/example.json). Visit the [**Multiple Assessment Results** wiki](https://github.com/deltanet/adapt-contrib-assessmentResultsTotal-audio/wiki) for more information about how they appear in the [authoring tool](https://github.com/adaptlearning/adapt_authoring/wiki).
 
 ### Attributes
 
@@ -22,7 +22,7 @@ The attributes listed below are used in *components.json* to configure **Assessm
 
 **_component** (string): This value must be: `assessmentResultsTotalAudio`. (One word with uppercase "R".)
 
-**_classes** (string): CSS class name(s) to be applied to **Assessment Results Total Audio**’ containing `div`. The class(es) must be predefined in one of the Less files. Separate multiple classes with a space.
+**_classes** (string): CSS class name(s) to be applied to **Multiple Assessment Results**’ containing `div`. The class(es) must be predefined in one of the Less files. Separate multiple classes with a space.
 
 **_layout** (string): This defines the horizontal position of the component in the block. Values can be `full`, `left` or `right`.  
 
@@ -31,6 +31,8 @@ The attributes listed below are used in *components.json* to configure **Assessm
 **_isVisibleBeforeCompletion** (boolean): Determines whether this component will be visible as the learner enters the assessment article or if it will be displayed only after the learner completes all question components. Acceptable values are `true` or `false`. The default is `false`.
 
 **_setCompletionOn** (string): Can be set to `"inview"` or `"pass"`. A a setting of `"inview"` will cause the component to be marked as completed when it has been viewed regardless of whether or not the assessments are passed, whereas a setting of `"pass"` will cause the component to be set to completed when this component has been viewed **and** the assessments have been passed. This setting can be very useful if you have further content on the page that's hidden by trickle which you don't want the user to be able to access until they have passed the assessment. Default is `"inview"`.
+
+**_assessmentId** (Array): This contains a list of assessments which must match the [`_id` of the assessment](https://github.com/adaptlearning/adapt-contrib-assessment#attributes) for which results should be displayed.  
 
 >**feedback** (string): This text is displayed only when both **_allowRetry** is `true` and more attempts remain ([configured in adapt-contrib-assessment](https://github.com/adaptlearning/adapt-contrib-assessment#attributes)). It may make use of the following variables: `{{attemptsSpent}}`, `{{attempts}}`, `{{attemptsLeft}}`, `{{score}}`, `{{scoreAsPercent}}` and `{{maxScore}}`. These values are populated with data supplied by [adapt-contrib-assessment](https://github.com/adaptlearning/adapt-contrib-assessment#attributes). `{{{feedback}}}`, representing the feedback assigned to the appropriate band within this component, is also allowed.  
 

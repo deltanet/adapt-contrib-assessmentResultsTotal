@@ -6,12 +6,15 @@
     "_component":"assessmentResultsTotalAudio",
     "_classes":"",
     "_layout":"full",
-    "title":"Total Results",
-    "displayTitle":"Total Results",
-    "body":"This component you're reading is a total results component.",
+    "title":"Multiple Assessment Results",
+    "displayTitle":"Multiple Assessment Results",
+    "body":"This component you're reading is the multiple results component.",
     "instruction":"",
     "_isVisibleBeforeCompletion": true,
     "_setCompletionOn": "inview",
+    "_assessmentId": [
+      ""
+    ],
     "_completionBody": "This component you're reading is a total results component.<br>You have finished the assessments.<br>You scored {{{scoreAsPercent}}}%. {{{feedback}}}",
     "_audioAssessment": {
       "_isEnabled": true,

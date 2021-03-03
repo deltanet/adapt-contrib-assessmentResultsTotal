@@ -24,7 +24,7 @@
       "type":"boolean",
       "required": true,
       "default": true,
-      "title": "Show before assessment completion",
+      "title": "Show before assessments are completed",
       "inputType": "Checkbox",
       "validators": [],
       "help": "Controls whether this component will be visible or hidden prior to all the assessments having been completed."
@@ -41,6 +41,15 @@
       },
       "validators": [],
       "help": "Set to 'pass' to have the component mark as completed only if the learner passed all the assessments."
+    },
+    "_assessmentId": {
+      "type": "array",
+      "required": false,
+      "default": [],
+      "title": "Assessment Names",
+      "inputType": "List",
+      "validators": [],
+      "help": "This is the list of all the assessments for which results should be displayed. If you want to display results for all assessments you can leave this blank."
     },
     "_completionBody": {
       "type": "string",
