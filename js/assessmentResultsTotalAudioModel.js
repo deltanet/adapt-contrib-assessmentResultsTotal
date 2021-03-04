@@ -54,7 +54,7 @@ define([
       this.setVisibility();
     }
 
-    checkIfAssessmentsComplete: function() {
+    checkIfAssessmentsComplete() {
       if (!Adapt.assessment) return;
 
       if (!this.get('_assessmentId') || this.get('_assessmentId').length == 0) return;
@@ -106,7 +106,7 @@ define([
       this.toggleVisibility(true);
     }
 
-    onAssessmentsComplete: function(state) {
+    onAssessmentsComplete(state) {
       var assessmentIDs = this.get('_assessmentId');
 
       if (assessmentIDs.indexOf(state.id) > -1 ) {
@@ -140,7 +140,7 @@ define([
       }
     }
 
-    getAssessmentStates: function(states) {
+    getAssessmentStates(states) {
       var score = 0;
       var maxScore = 0;
       var totalAssessments = 0;
