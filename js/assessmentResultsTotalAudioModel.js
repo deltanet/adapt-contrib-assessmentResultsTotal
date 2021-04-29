@@ -142,7 +142,9 @@ define([
             var score = 0;
             var maxScore = 0;
             var totalAssessments = 0;
+            var assessmentsPassed = 0;
             var isPercentageBased = Adapt.course.get('_assessment')._isPercentageBased;
+            var isPass = false;
 
             for (var id in states) {
                 var state = states[id];
@@ -150,15 +152,23 @@ define([
                 totalAssessments++;
                 maxScore += state.maxScore / state.assessmentWeight;
                 score += state.score / state.assessmentWeight;
+                if (state.isPass) {
+                  assessmentsPassed++;
+                }
             }
 
             var scoreAsPercent = Math.round((score / maxScore) * 100);
+
+            if (assessmentsPassed == totalAssessments) {
+                isPass = true;
+            }
 
             return {
                 isPercentageBased: isPercentageBased,
                 scoreAsPercent: scoreAsPercent,
                 maxScore: maxScore,
-                score: score
+                score: score,
+                isPass: isPass
             };
         },
 
