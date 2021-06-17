@@ -21,31 +21,40 @@ define([
                 'change:body': this.render
             });
 
+            if (Adapt.audio && this.model.get('_audioAssessment')._isEnabled) {
+              this.setupAudio();
+            }
+
             this.model.checkIfAssessmentComplete();
             this.model.checkIfAssessmentsComplete();
         },
 
         postRender: function() {
-            this.setReadyStatus();
-            this.setupInviewCompletion('.component-inner', this.model.checkCompletion.bind(this.model));
+          this.setReadyStatus();
+          this.setupInviewCompletion('.component-inner', this.model.checkCompletion.bind(this.model));
 
-            if (Adapt.audio && this.model.get('_audioAssessment')._isEnabled) {
-              this.setupAudio();
+          // Audio
+          if (!Adapt.audio || !this.model.get('_audioAssessment')._isEnabled) return;
 
-              $('.'+this.model.get('_id')).on('onscreen', _.bind(this.onscreen, this));
+          // Hide controls if set in JSON or if audio is turned off
+          if (this.model.get('_audioAssessment')._showControls==false || Adapt.audio.audioClip[this.audioChannel].status==0){
+            this.$('.audio-inner button').hide();
+          }
 
-              this.listenTo(Adapt, 'remove', this.removeListeners);
-            }
+          this.$el.on("onscreen", _.bind(this.onscreen, this));
+          this.listenToOnce(Adapt, 'remove', this.removeListeners);
         },
 
         removeListeners: function() {
-          $('.'+this.model.get('_id')).off('onscreen');
+          this.$el.off('onscreen');
         },
 
         setupAudio: function() {
           // Set vars
           this.audioChannel = this.model.get("_audioAssessment")._channel;
           this.elementId = this.model.get("_id");
+          this.model.set('audioFile', this.model.get("_audioAssessment")._media.src);
+
           this.onscreenTriggered = false;
 
           // Autoplay
@@ -62,16 +71,6 @@ define([
               this.autoplayOnce = true;
           } else {
             this.autoplayOnce = false;
-          }
-
-          // Hide controls if set in JSON or if audio is turned off
-          if (this.model.get('_audioAssessment')._showControls==false || Adapt.audio.audioClip[this.audioChannel].status==0){
-              this.$('.audio-inner button').hide();
-          }
-
-          // Hide controls if set in JSON or if audio is turned off
-          if (this.model.get('_audioAssessment')._showControls==false || Adapt.audio.audioClip[this.audioChannel].status==0){
-              this.$('.audio-inner button').hide();
           }
         },
 
