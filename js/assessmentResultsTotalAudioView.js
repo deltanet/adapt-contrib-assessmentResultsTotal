@@ -23,6 +23,10 @@ define([
         'change:body': this.render
       });
 
+      if (Adapt.audio && this.model.get('_audioAssessment')._isEnabled) {
+        this.setupAudio();
+      }
+
       this.model.checkIfAssessmentComplete();
       this.model.checkIfAssessmentsComplete();
     }
@@ -31,12 +35,16 @@ define([
       this.setReadyStatus();
       this.setupInviewCompletion('.component__inner', this.model.checkCompletion.bind(this.model));
 
-      if (Adapt.audio && this.model.get('_audioAssessment')._isEnabled) {
-        this.setupAudio();
+      // Audio
+      if (!Adapt.audio || !this.model.get('_audioAssessment')._isEnabled) return;
 
-        this.$el.on('onscreen', _.bind(this.onscreen, this));
-        this.listenTo(Adapt, 'remove', this.removeListeners);
+      // Hide controls if set in JSON or if audio is turned off
+      if (this.model.get('_audioAssessment')._showControls==false || Adapt.audio.audioClip[this.audioChannel].status==0){
+        this.$('.audio__controls').addClass('is-hidden');
       }
+
+      this.$el.on('onscreen', _.bind(this.onscreen, this));
+      this.listenToOnce(Adapt, 'remove', this.removeListeners);
     }
 
     removeListeners() {
@@ -47,6 +55,7 @@ define([
       // Set vars
       this.audioChannel = this.model.get('_audioAssessment')._channel;
       this.elementId = this.model.get("_id");
+      this.model.set('audioFile', this.model.get('_audioAssessment')._media.src);
       this.onscreenTriggered = false;
 
       // Autoplay
@@ -63,16 +72,6 @@ define([
         this.autoplayOnce = true;
       } else {
         this.autoplayOnce = false;
-      }
-
-      // Hide controls if set in JSON or if audio is turned off
-      if (this.model.get('_audioAssessment')._showControls==false || Adapt.audio.audioClip[this.audioChannel].status==0){
-        this.$('.audio__controls').addClass('is-hidden');
-      }
-
-      // Hide controls if set in JSON or if audio is turned off
-      if (this.model.get('_audioAssessment')._showControls==false || Adapt.audio.audioClip[this.audioChannel].status==0){
-        this.$('.audio__controls').addClass('is-hidden');
       }
     }
 

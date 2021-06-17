@@ -9,10 +9,6 @@ define([
       this.set('originalBody', this.get('body'));// save the original body text so we can restore it when the assessment is reset
       this.set('originalInstruction', this.get('instruction'));// save the original body text so we can restore it when the assessment is reset
 
-      if (Adapt.audio && this.get('_audioAssessment')._isEnabled) {
-        this.set('audioFile', this.get('_audioAssessment')._media.src);
-      }
-
       if (!this.get('_assessmentId') || this.get('_assessmentId').length == 0) {
         this.listenTo(Adapt, {
           'assessment:complete': this.onAssessmentComplete,
