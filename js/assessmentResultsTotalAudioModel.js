@@ -104,7 +104,6 @@ define([
           var assessmentIDs = this.get('_assessmentId');
 
           if (assessmentIDs.indexOf(state.id) > -1 ) {
-
             var assessmentArticleModels = [];
             var assessmentStates = [];
 
@@ -246,11 +245,21 @@ define([
          * The component can either inherit the assessment's reset type or define its own
          */
         onAssessmentReset: function(state) {
-            var resetType = this.get('_resetType');
-            if (!resetType || resetType === 'inherit') {
-                resetType = state.resetType || 'hard';// backwards compatibility - state.resetType was only added in assessment v2.3.0
-            }
+          var resetType = this.get('_resetType');
+          if (!resetType || resetType === 'inherit') {
+              resetType = state.resetType || 'hard';// backwards compatibility - state.resetType was only added in assessment v2.3.0
+          }
+
+          // All assessments (Blank _assessmentId)
+          if (!this.get('_assessmentId') || this.get('_assessmentId').length == 0) {
             this.reset(resetType, true);
+          } else {
+            // Specific assessments
+            var assessmentIDs = this.get('_assessmentId');
+            if (assessmentIDs.indexOf(state.id) > -1 ) {
+              this.reset(resetType, true);
+            }
+          }
         },
 
         reset: function() {
