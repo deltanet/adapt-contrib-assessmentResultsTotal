@@ -242,7 +242,17 @@ define([
       if (!resetType || resetType === 'inherit') {
         resetType = state.resetType || 'hard';// backwards compatibility - state.resetType was only added in assessment v2.3.0
       }
-      this.reset(resetType, true);
+
+      // All assessments (Blank _assessmentId)
+      if (!this.get('_assessmentId') || this.get('_assessmentId').length == 0) {
+        this.reset(resetType, true);
+      } else {
+        // Specific assessments
+        var assessmentIDs = this.get('_assessmentId');
+        if (assessmentIDs.indexOf(state.id) > -1 ) {
+          this.reset(resetType, true);
+        }
+      }
     }
 
     reset(...args) {
